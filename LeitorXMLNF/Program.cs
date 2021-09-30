@@ -12,23 +12,17 @@ namespace LeitorXMLNF
             string Caminho = string.Empty;
 
 
-            while (Console.ReadKey().Key != ConsoleKey.S)
-            {
-                Console.Write("MENU?: Y - INICIAR LEITURA | S = SAIR ");
-                Console.WriteLine("");
-                Console.Write("| Caminho: ");
-                Caminho = Console.ReadLine();
+            Console.WriteLine("");
+            Console.Write("| Caminho: ");
+            Caminho = Console.ReadLine();
 
-                var Notas = new Leitor(Caminho);
+            var Notas = new Leitor(Caminho);
 
             
-                Notas.LerNotas();
-                Notas.GravarArquivo();
+            Notas.LerNotas();
+            Notas.GravarArquivo();
 
-                Console.WriteLine(Notas.ExibirLogs());
-
-                Console.WriteLine("+-------------------------------------------------------+");
-            }
+            Console.WriteLine(Notas.ExibirLogs());
         }
     }
 }

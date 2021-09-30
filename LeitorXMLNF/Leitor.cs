@@ -66,7 +66,7 @@ namespace LeitorXMLNF
             string nNF = LerTag("ide", "nNF", arquivo);
             string xNome = LerTag("emit", "xNome", arquivo);
             string infAdFisco = LerTag("infAdic", "infAdFisco", arquivo);
-            string infAdCpl = LerTag("infAdic", "infAdCpl", arquivo);
+            string infAdCpl = LerTag("infAdic", "infCpl", arquivo);
 
             string dataEntradaSaida = LerTag("ide", "dhSaiEnt", arquivo);
             DateTime dhSaiEnt = !string.IsNullOrWhiteSpace(dataEntradaSaida) ? DateTime.Parse(dataEntradaSaida) : new DateTime(1900,01,01);
