@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace LeitorXMLNF
 {
@@ -12,6 +13,7 @@ namespace LeitorXMLNF
         {
             _caminho = caminho;
             NotasFiscais = new List<NotaFiscal>();
+            _diretorios = new List<string>(){ _caminho };
             _log = new List<string>();
         }
         private string _caminho { get; set; }
@@ -24,12 +26,14 @@ namespace LeitorXMLNF
             if (!Directory.Exists(_caminho))
                 _log.Add("O caminho não existe");
 
-            ListarDiretorios();
+            CarregarDiretorios();
 
-            var files = Directory.GetFiles(_caminho, @"*.xml").ToList();
+            var padraoXML = new Regex(@"[0-9]{44}\.xml");
+
+            var files = new List<string>();
 
             foreach(var diretorio in _diretorios)
-                files.AddRange(Directory.GetFiles($"{diretorio}", @"*.xml").ToList());
+                files.AddRange(Directory.GetFiles(diretorio, @"*.xml").Where(x => padraoXML.IsMatch(x)).ToList());
 
             foreach (var file in files)
                 using (var sr = new StreamReader(file))
@@ -38,18 +42,23 @@ namespace LeitorXMLNF
             _log.Add("O arquivo foi gravado com sucesso");
         }
 
-        private void ListarDiretorios()
+        private void CarregarDiretorios()
         {
-            _diretorios = Directory.GetDirectories(_caminho).ToList();
+            var diretoriosRaiz = Directory.GetDirectories(_caminho).ToList();
 
-            foreach (var item in _diretorios)
-            {
-                var diretorios = Directory.GetDirectories(item).ToList();
-                _diretorios.AddRange(diretorios);
+            _diretorios.AddRange(diretoriosRaiz);
 
-                if (diretorios.Count > 0)
-                    ListarDiretorios();
-            }
+            foreach (var item in diretoriosRaiz)
+                CarregarSubdiretorios(item);
+        }
+
+        private void CarregarSubdiretorios(string diretorio)
+        {
+            var subdiretorios = Directory.GetDirectories(diretorio).ToList();
+            _diretorios.AddRange(subdiretorios);
+            
+            foreach (var item in subdiretorios)
+                CarregarSubdiretorios(item);
         }
 
         public void Serializar(string arquivo)
@@ -70,10 +79,10 @@ namespace LeitorXMLNF
             NotasFiscais.Add(notaFiscal);
         }
 
-        private static string LerTag(string paiTag, string pTag, string pConteudo)
+        private static string LerTag(string tagPai, string tagFilho, string pConteudo)
         {
-            string TIP = $"<{paiTag}>";
-            string TFP = $"</{paiTag}>";
+            string TIP = $"<{tagPai}>";
+            string TFP = $"</{tagPai}>";
             string RetornoP = "";
 
             int P1P = pConteudo.IndexOf(TIP);
@@ -83,8 +92,8 @@ namespace LeitorXMLNF
                 RetornoP = pConteudo.Substring(P1P + TIP.Length, P2P - P1P - TIP.Length);
             }
 
-            string TI = $"<{pTag}>";
-            string TF = $"</{pTag}>";
+            string TI = $"<{tagFilho}>";
+            string TF = $"</{tagFilho}>";
             string Retorno = "";
 
             int P1 = RetornoP.IndexOf(TI);
@@ -110,12 +119,11 @@ namespace LeitorXMLNF
 
                 sw.Close();
             }
-
         }
 
         public string ExibirLogs()
         {
-            return string.Join("\n",_log);
+            return string.Join("\n", _log);
         }
     }
 }
