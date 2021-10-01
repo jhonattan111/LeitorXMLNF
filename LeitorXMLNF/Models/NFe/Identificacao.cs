@@ -14,8 +14,8 @@ namespace LeitorXMLNF.Models.NFe
         public string mod { get; set; }
         public int serie { get; set; }
         public string nNF { get; set; }
-        public DateTime? dhEmi { get; set; }
-        public DateTime? dhSaiEnt { get; set; }
+        public DateTime dhEmi { get; set; }
+        public DateTime dhSaiEnt { get; set; }
         public int tpNF { get; set; }
         public int idDest { get; set; }
         public int cMunFG {  get; set; }
@@ -27,7 +27,7 @@ namespace LeitorXMLNF.Models.NFe
         public int indFinal { get; set; }
         public int indPres { get; set; }
         public int procEmi { get; set; }
-        public int verProc { get; set; }
+        public string verProc { get; set; }
         public int indPag { get; set; }
     }
 }
