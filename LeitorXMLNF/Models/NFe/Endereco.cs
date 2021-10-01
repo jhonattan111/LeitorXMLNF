@@ -17,5 +17,6 @@ namespace LeitorXMLNF.Models.NFe
         public string CEP { get; set; }
         public int cPais { get; set; }
         public string xPais { get; set; }
+        public string fone { get; set; }
     }
 }

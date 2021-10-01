@@ -1,4 +1,5 @@
 ﻿using LeitorXMLNF.Models;
+using LeitorXMLNF.Models.NFe;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,32 +13,39 @@ namespace LeitorXMLNF
         public Leitor(string caminho)
         {
             _caminho = caminho;
-            NotasFiscais = new List<NotaFiscal>();
+            NotasFiscais = new List<NFeProc>();
             _diretorios = new List<string>(){ _caminho };
             _log = new List<string>();
         }
         private string _caminho { get; set; }
         private List<string> _diretorios { get; set; }
         private List<string> _log { get; set; }
-        public List<NotaFiscal> NotasFiscais { get; set; }
+        public List<NFeProc> NotasFiscais { get; set; }
 
         public void LerNotas()
         {
             if (!Directory.Exists(_caminho))
+            {
                 _log.Add("O caminho não existe");
+                return;
+            }
 
             CarregarDiretorios();
 
             var padraoXML = new Regex(@"[0-9]{44}\.xml");
 
-            var files = new List<string>();
+            var arquivos = new List<string>();
 
             foreach(var diretorio in _diretorios)
-                files.AddRange(Directory.GetFiles(diretorio, @"*.xml").Where(x => padraoXML.IsMatch(x)).ToList());
+                arquivos.AddRange(Directory.GetFiles(diretorio, @"*.xml").Where(x => padraoXML.IsMatch(x)).ToList());
 
-            foreach (var file in files)
-                using (var sr = new StreamReader(file))
-                    Serializar(sr.ReadToEnd());
+            var leitor = new LeitorXML();
+
+            foreach (var file in arquivos)
+            {
+                var nota = leitor.DesserializarXML<NFeProc>(file);
+                NotasFiscais.Add(nota);
+            }
 
             _log.Add("O arquivo foi gravado com sucesso");
         }
@@ -59,24 +67,6 @@ namespace LeitorXMLNF
             
             foreach (var item in subdiretorios)
                 CarregarSubdiretorios(item);
-        }
-
-        public void Serializar(string arquivo)
-        {
-            string nNF = LerTag("ide", "nNF", arquivo);
-            string xNome = LerTag("emit", "xNome", arquivo);
-            string infAdFisco = LerTag("infAdic", "infAdFisco", arquivo);
-            string infAdCpl = LerTag("infAdic", "infCpl", arquivo);
-
-            string dataEntradaSaida = LerTag("ide", "dhSaiEnt", arquivo);
-            DateTime dhSaiEnt = !string.IsNullOrWhiteSpace(dataEntradaSaida) ? DateTime.Parse(dataEntradaSaida) : new DateTime(1900,01,01);
-
-            string dataEmissao = LerTag("ide", "dhEmi", arquivo);
-            DateTime dhEmi = !string.IsNullOrWhiteSpace(dataEmissao) ? DateTime.Parse(dataEntradaSaida) : new DateTime(1900, 01, 01);
-
-            var notaFiscal = new NotaFiscal(nNF, xNome, infAdFisco, infAdCpl, dhSaiEnt, dhEmi);
-
-            NotasFiscais.Add(notaFiscal);
         }
 
         private static string LerTag(string tagPai, string tagFilho, string pConteudo)
@@ -113,7 +103,8 @@ namespace LeitorXMLNF
                 sw.WriteLine("Data Emissão\tData Entrada/Saida\tNúmeroNF\tFornecedor\tInformação Adicional\tInformação Adicional ao Fisco");
                 foreach (var item in NotasFiscais)
                 {
-                    var Linha = $"{item.DataEmissao:dd/MM/yyyy HH:mm:ss}\t{item.DataEntradaSaida:dd/MM/yyyy HH:mm:ss}\t{item.NumeroNF}\t{item.NomeFornecedor}\t{item.InformacaoAdicional}\t{item.InformacaoAdicionalFisco}";
+                    //var Linha = $"{item.NotaFiscalEletronica.InformacoesNFe.Identificacao.:dd/MM/yyyy HH:mm:ss}\t{item.DataEntradaSaida:dd/MM/yyyy HH:mm:ss}\t{item.NumeroNF}\t{item.NomeFornecedor}\t{item.InformacaoAdicional}\t{item.InformacaoAdicionalFisco}";
+                    var Linha = "";
                     sw.WriteLine(Linha);
                 }
 
