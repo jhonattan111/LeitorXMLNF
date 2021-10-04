@@ -23,6 +23,9 @@ namespace LeitorXMLNF.Models.NFe
             [XmlElement("dest")]
             public Destinatario Destinatario { get; set; }
 
+            [XmlElement("infAdic")]
+            public InformacaoAdicional InformacaoAdicional { get; set; }
+
             [XmlElement("det")]
             public List<Detalhe> Detalhe { get; set; }
         }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace LeitorXMLNF
@@ -98,14 +99,26 @@ namespace LeitorXMLNF
 
         public void GravarArquivo()
         {
-            using (var sw = new StreamWriter($"notas{DateTime.Now:ddMMyyyyHHmmss}.txt"))
+            string _novoArquivo = $"notas{DateTime.Now:ddMMyyyyHHmmss}.txt";
+
+            if (File.Exists(_novoArquivo))
+            {
+                _log.Add($"O arquivo {_novoArquivo} já existe");
+                return;
+            }
+
+            using (var sw = new StreamWriter(_novoArquivo))
             {
                 sw.WriteLine("Data Emissão\tData Entrada/Saida\tNúmeroNF\tFornecedor\tInformação Adicional\tInformação Adicional ao Fisco");
-                foreach (var item in NotasFiscais)
+                
+                foreach(var nota in NotasFiscais)
                 {
-                    //var Linha = $"{item.NotaFiscalEletronica.InformacoesNFe.Identificacao.:dd/MM/yyyy HH:mm:ss}\t{item.DataEntradaSaida:dd/MM/yyyy HH:mm:ss}\t{item.NumeroNF}\t{item.NomeFornecedor}\t{item.InformacaoAdicional}\t{item.InformacaoAdicionalFisco}";
-                    var Linha = "";
-                    sw.WriteLine(Linha);
+                    sw.WriteLine($"{nota.NotaFiscalEletronica.InformacoesNFe.Identificacao.dhEmi.ToString("dd/MM/yyyy")}\t" +
+                                 $"{nota.NotaFiscalEletronica.InformacoesNFe.Identificacao.dhSaiEnt.ToString("dd/MM/yyyy")}\t" +
+                                 $"{nota.NotaFiscalEletronica.InformacoesNFe.Identificacao.nNF}\t" +
+                                 $"{nota.NotaFiscalEletronica.InformacoesNFe.Emitente.xNome}\t" +
+                                 $"{nota.NotaFiscalEletronica.InformacoesNFe.InformacaoAdicional.infCpl}\t" +
+                                 $"{nota.NotaFiscalEletronica.InformacoesNFe.InformacaoAdicional.infAdFisco}\t");
                 }
 
                 sw.Close();
