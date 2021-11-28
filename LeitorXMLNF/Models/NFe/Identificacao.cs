@@ -15,7 +15,7 @@ namespace LeitorXMLNF.Models.NFe
         public int serie { get; set; }
         public string nNF { get; set; }
         public DateTime dhEmi { get; set; }
-        public DateTime dhSaiEnt { get; set; }
+        public DateTime? dhSaiEnt { get; set; }
         public int tpNF { get; set; }
         public int idDest { get; set; }
         public int cMunFG {  get; set; }
